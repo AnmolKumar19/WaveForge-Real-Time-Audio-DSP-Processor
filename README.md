@@ -1,4 +1,4 @@
-# Swara — Real-Time Audio DSP Processor
+# WaveForge — Real-Time Audio DSP Processor
 
 A full-stack, deployable audio effects processor built around a genuine C++
 DSP engine: real IIR filter math, a real FFT (KissFFT) driving a spectral
