@@ -1,14 +1,16 @@
 # waveForge — Real-Time Audio DSP Processor
 
+[![CI](https://github.com/AnmolKumar19/WaveForge-Real-Time-Audio-DSP-Processor/actions/workflows/ci.yml/badge.svg)](https://github.com/AnmolKumar19/WaveForge-Real-Time-Audio-DSP-Processor/actions/workflows/ci.yml)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=flat&logo=render&logoColor=white)](https://waveforge-bsx6.onrender.com)
+
 A full-stack, deployable audio effects processor built around a genuine C++
 DSP engine: real IIR filter math, a real FFT (KissFFT) driving a spectral
 noise gate, and a real circular-buffer delay line — wrapped in a FastAPI
 backend and a React frontend so it's demoable from a browser, not just a
 CLI.
 
-**Live deployment: https://waveforge-7lye.onrender.com** — deployed on Render
-from this repo's `Dockerfile`/`render.yaml`; the C++ engine is compiled and
-running for real on the server (check `/api/health`), not mocked.
+> **Live App:** [https://waveforge-bsx6.onrender.com](https://waveforge-bsx6.onrender.com) — deployed on Render from this repo's `Dockerfile`/`render.yaml`; the C++ engine is compiled and running for real on the server (check `/api/health`), not mocked.  
+> *Note: Hosted on Render's free tier, so the first load after inactivity may take 30–60 seconds to wake up.*
 
 ## What it does
 
@@ -98,20 +100,18 @@ bursts. Details and the filter math behind each check are in
 
 ## Architecture
 
+```text
+Browser (React)                 FastAPI backend                C++ DSP engine
+┌───────────────────┐ multipart ┌───────────────────┐ subproc  ┌──────────────────────┐
+│ upload .wav       │──────────▶│ POST /api/process │─────────▶│ waveforge_engine CLI │
+│ pick effects      │           │  - saves upload   │          │  - reads WAV         │
+│ play orig/proc    │◀──────────│  - shells out to  │◀─────────│  - streams through   │
+│ show latency tbl  │  JSON:    │    the engine     │ stats +  │    effect chain,     │
+└───────────────────┘  audio +  │  - returns audio  │ out.wav  │    fixed-size blocks │
+                       stats    │    (base64)+stats │          │  - writes WAV +      │
+                                └───────────────────┘          │    measured latency  │
+                                                               └──────────────────────┘
 ```
- Browser (React)                FastAPI backend               C++ DSP engine
-┌──────────────────┐  multipart ┌───────────────────┐  subprocess ┌──────────────────┐
-│ upload .wav       │──────────▶│ POST /api/process  │────────────▶│ waveforge_engine CLI  │
-│ pick effects      │           │  - saves upload    │             │  - reads WAV       │
-│ play orig/processed│◀──────────│  - shells out to   │◀────────────│  - streams through │
-│ show latency table │  JSON:    │    the engine       │  stats.json │    effect chain,   │
-└──────────────────┘  audio+    │  - returns audio     │  + out.wav │    fixed-size      │
-                       stats     │    (base64) + stats  │            │    blocks          │
-                                 └───────────────────┘             │  - writes WAV +    │
-                                                                    │    measured latency │
-                                                                    └──────────────────┘
-```
-
 - **C++ engine** (`engine/`): standalone CLI, no dependency on the backend.
   Built with a plain `Makefile` (no CMake — see "Why no CMake" below)
   against [KissFFT](https://github.com/mborgerding/kissfft) (vendored in
@@ -191,7 +191,7 @@ the frontend, and serves both from one FastAPI process at
 
 ## Deployment
 
-**Live: https://waveforge-7lye.onrender.com**
+**Live: [https://waveforge-bsx6.onrender.com](https://waveforge-bsx6.onrender.com)**
 
 Deployed on [Render](https://render.com) from the root
 [`Dockerfile`](Dockerfile) via the [`render.yaml`](render.yaml) Blueprint:
