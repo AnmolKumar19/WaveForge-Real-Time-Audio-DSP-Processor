@@ -22,7 +22,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *d, size_t size) {
     size_t used = 0;
     for (size_t i = 0; i + 1 < size / 2; ++i) {
         size_t n = (size_t)(d[2 * i + 1] % 20);
-        float buf[20];
+        float buf[20]={0};
         if (d[2 * i] & 1) {
             for (size_t k = 0; k < n; ++k) buf[k] = (float)(next_write + (unsigned)k);
             waveforge_status s = waveforge_ring_write(&r, buf, n);
